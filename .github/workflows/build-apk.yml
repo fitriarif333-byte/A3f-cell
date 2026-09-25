@@ -71,101 +71,34 @@ jobs:
                   applicationId 'com.a3fcell.app'
                   minSdk 24
                   targetSdk 35
-                  versionCode 1
-                  versionName '1.0'
+                  versionCode 2
+                  versionName '1.1'
               }
           }
           EOF
 
+          cat > app/src/main/res/values/strings.xml <<'EOF'
+          <resources>
+              <string name="app_name">A3F CELL</string>
+          </resources>
+          EOF
+
           cat > app/src/main/res/values/styles.xml <<'EOF'
           <resources>
-              <style name="AppTheme"
-                  parent="android:style/Theme.Material.Light.NoActionBar">
+              <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
                   <item name="android:fontFamily">sans</item>
                   <item name="android:colorAccent">#1565C0</item>
-                  <item name="android:navigationBarColor">#FFFFFF</item>
                   <item name="android:statusBarColor">#1565C0</item>
+                  <item name="android:navigationBarColor">#FFFFFF</item>
               </style>
           </resources>
           EOF
 
           cat > app/src/main/AndroidManifest.xml <<'EOF'
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
               <application
                   android:theme="@style/AppTheme"
                   android:label="A3F CELL"
                   android:allowBackup="true"
-                  android:supportsRtl="true">
-
-                  <activity
-                      android:name=".MainActivity"
-                      android:screenOrientation="portrait"
-                      android:exported="true">
-
-                      <intent-filter>
-                          <action android:name="android.intent.action.MAIN" />
-                          <category android:name="android.intent.category.LAUNCHER" />
-                      </intent-filter>
-
-                  </activity>
-              </application>
-          </manifest>
-          EOF
-
-          cat > app/src/main/java/com/a3fcell/app/MainActivity.java <<'EOF'
-          package com.a3fcell.app;
-
-          import android.app.Activity;
-          import android.os.Bundle;
-          import android.graphics.Color;
-          import android.view.Gravity;
-          import android.widget.LinearLayout;
-          import android.widget.TextView;
-
-          public class MainActivity extends Activity {
-
-              @Override
-              protected void onCreate(Bundle savedInstanceState) {
-                  super.onCreate(savedInstanceState);
-
-                  LinearLayout layout = new LinearLayout(this);
-                  layout.setOrientation(LinearLayout.VERTICAL);
-                  layout.setPadding(32, 40, 32, 32);
-                  layout.setGravity(Gravity.CENTER_HORIZONTAL);
-
-                  TextView title = new TextView(this);
-                  title.setText("A3F CELL");
-                  title.setTextSize(30);
-                  title.setTextColor(Color.rgb(21, 101, 192));
-                  title.setGravity(Gravity.CENTER);
-                  title.setPadding(0, 20, 0, 30);
-
-                  TextView welcome = new TextView(this);
-                  welcome.setText(
-                      "Dashboard A3F CELL\\n\\n" +
-                      "Pulsa & Paket Data\\n" +
-                      "Token Listrik\\n" +
-                      "DANA / GoPay / ShopeePay\\n" +
-                      "Transfer / Tarik Tunai\\n\\n" +
-                      "Riwayat Transaksi\\n" +
-                      "Laporan Penjualan"
-                  );
-                  welcome.setTextSize(18);
-                  welcome.setGravity(Gravity.CENTER);
-
-                  layout.addView(title);
-                  layout.addView(welcome);
-
-                  setContentView(layout);
-              }
-          }
-          EOF
-
-      - name: Build APK
-        run: gradle :app:assembleDebug
-
-      - name: Simpan APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: A3F-CELL-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
+                  android:supportsRtl
