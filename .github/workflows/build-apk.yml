@@ -3,16 +3,13 @@ name: Build A3F CELL APK
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -25,30 +22,15 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Buat project Android
+      - name: Buat aplikasi
         shell: bash
         run: |
           mkdir -p app/src/main/java/com/a3fcell/app
-          mkdir -p app/src/main/res/values
 
           cat > settings.gradle <<'EOF'
-          pluginManagement {
-              repositories {
-                  google()
-                  mavenCentral()
-                  gradlePluginPortal()
-              }
-          }
-
-          dependencyResolutionManagement {
-              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-              repositories {
-                  google()
-                  mavenCentral()
-              }
-          }
-
-          rootProject.name = "A3F CELL"
+          pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
+          dependencyResolutionManagement { repositories { google(); mavenCentral() } }
+          rootProject.name='A3F CELL'
           include ':app'
           EOF
 
@@ -59,14 +41,10 @@ jobs:
           EOF
 
           cat > app/build.gradle <<'EOF'
-          plugins {
-              id 'com.android.application'
-          }
-
+          plugins { id 'com.android.application' }
           android {
               namespace 'com.a3fcell.app'
               compileSdk 35
-
               defaultConfig {
                   applicationId 'com.a3fcell.app'
                   minSdk 24
@@ -77,28 +55,39 @@ jobs:
           }
           EOF
 
-          cat > app/src/main/res/values/strings.xml <<'EOF'
-          <resources>
-              <string name="app_name">A3F CELL</string>
-          </resources>
-          EOF
-
-          cat > app/src/main/res/values/styles.xml <<'EOF'
-          <resources>
-              <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
-                  <item name="android:fontFamily">sans</item>
-                  <item name="android:colorAccent">#1565C0</item>
-                  <item name="android:statusBarColor">#1565C0</item>
-                  <item name="android:navigationBarColor">#FFFFFF</item>
-              </style>
-          </resources>
-          EOF
-
           cat > app/src/main/AndroidManifest.xml <<'EOF'
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+          <application android:theme="@android:style/Theme.Material.Light.NoActionBar" android:label="A3F CELL">
+          <activity android:name=".MainActivity" android:exported="true">
+          <intent-filter>
+          <action android:name="android.intent.action.MAIN"/>
+          <category android:name="android.intent.category.LAUNCHER"/>
+          </intent-filter>
+          </activity>
+          </application>
+          </manifest>
+          EOF
 
-              <application
-                  android:theme="@style/AppTheme"
-                  android:label="A3F CELL"
-                  android:allowBackup="true"
-                  android:supportsRtl
+          cat > app/src/main/java/com/a3fcell/app/MainActivity.java <<'EOF'
+          package com.a3fcell.app;
+          import android.app.*; import android.os.*; import android.graphics.*; import android.view.*; import android.widget.*;
+          public class MainActivity extends Activity {
+          public void onCreate(Bundle b) {
+          super.onCreate(b);
+          LinearLayout l=new LinearLayout(this); l.setOrientation(LinearLayout.VERTICAL); l.setPadding(25,25,25,25);
+          TextView t=new TextView(this); t.setText("A3F CELL"); t.setTextSize(30); t.setGravity(17); t.setTextColor(Color.rgb(21,101,192)); l.addView(t);
+          TextView s=new TextView(this); s.setText("Dashboard Penjualan"); s.setTextSize(18); s.setGravity(17); l.addView(s);
+          String[] m={"Pulsa & Paket Data","Token Listrik","DANA / GoPay / ShopeePay","Transfer / Tarik Tunai","Transaksi Baru","Riwayat Transaksi","Laporan Penjualan","Pengaturan"};
+          for(String x:m){Button v=new Button(this);v.setText(x);v.setAllCaps(false);l.addView(v);v.setOnClickListener(q->Toast.makeText(this,x+" dipilih",Toast.LENGTH_SHORT).show());}
+          setContentView(l);
+          }}
+          EOF
+
+      - name: Build APK
+        run: gradle :app:assembleDebug --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: A3F-CELL-APK
+          path: app/build/outputs/apk/debug/app-debug.apk
